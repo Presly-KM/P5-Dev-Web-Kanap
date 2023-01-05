@@ -166,10 +166,17 @@ function makeImageDiv(item) {
 
 function submitForm(e) {
     e.preventDefault()
-    if (cart.length === 0) alert("Please select items to buy")
-    const form = document.querySelector(".cart__order__form")
+    if (cart.length === 0) {
+        alert("Please select items to buy")
+        return
+    }
+
+    if (isFormInValid()) return
+    if (IsEmailInvalid()) return 
+
+
     const body = makeRequestBody()
-    fetch("http://localhost:3000/api/productS/order", {
+    fetch("http://localhost:3000/api/products/order", {
         method: "POST",
         body: JSON.stringify(body),
         headers: {
@@ -180,34 +187,56 @@ function submitForm(e) {
         .then((data) => console.log(data))
 }
 
-function makeRequestBody() {
-    const form = document.querySelector(".cart__order__form")
-    const firstName = form.elements.firstName.value
-    const lastName = form.elements.lastName.value 
-    const address = form.elements.address.value 
-    const city = form.elements.city.value 
-    const email = form.elements.email.value 
-    const body = {
-        contact: {
-            firstName: firstName,
-            lastName: lastName,
-            address: address,
-            city: city,
-            email: email
-        },
-        products: getIdsFromCache() 
+function IsEmailInvalid() {
+    const email = document.querySelector("#email").value
+    const regex = /^[A-Za-z0-9+_.-]+@(.+)$/
+    if (regex.test(email) === false) {
+        alert("Please enter valid email")
+        return true
     }
-    console.log(body)
-    return body
+    return false
 }
 
-function getIdsFromCache() {
-    const numberOfProducts = localStorage.length
-    const ids = []
-    for (let i = 0; i < numberOfProducts; i++) {
-        const key = localStorage.key(i)
-        const id = key.split("-")[0]
-        ids.push(id)
-    }
-    return ids
+function isFormInValid() {
+    const form = document.querySelector(".cart__order__form")
+    const inputs = form.querySelectorAll("input")
+    inputs.forEach((input) => {
+        if (input.value === "") {
+            alert("Please fill all the fields")
+            return true
+        }
+        return false
+    })
 }
+
+    function makeRequestBody() {
+        const form = document.querySelector(".cart__order__form")
+        const firstName = form.elements.firstName.value
+        const lastName = form.elements.lastName.value
+        const address = form.elements.address.value
+        const city = form.elements.city.value
+        const email = form.elements.email.value
+        const body = {
+            contact: {
+                firstName: firstName,
+                lastName: lastName,
+                address: address,
+                city: city,
+                email: email
+            },
+            products: getIdsFromCache()
+        }
+        console.log(body)
+        return body
+    }
+
+    function getIdsFromCache() {
+        const numberOfProducts = localStorage.length
+        const ids = []
+        for (let i = 0; i < numberOfProducts; i++) {
+            const key = localStorage.key(i)
+            const id = key.split("-")[0]
+            ids.push(id)
+        }
+        return ids
+    }
