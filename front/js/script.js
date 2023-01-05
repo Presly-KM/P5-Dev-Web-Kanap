@@ -69,6 +69,7 @@ function makeH3(name) {
     h3.classList.add("productName")
     return h3
 }
+
 function makeParagraph(description) {
     const p = document.createElement("p")
     p.textContent = description
