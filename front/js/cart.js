@@ -3,13 +3,8 @@ const cart = []
 retrieveItemsFromCache()
 cart.forEach((item) => displayItem(item))
 
-//altTxt: "Photo d'un canapé gris, trois places"
-//color: "Blue"
-//id: "8906dfda133f4c20a9d0e34f18adcf06"
-//imageUrl: "http://localhost:3000/images/kanap05.jpeg"
-//price: 2249
-//quantity: 2
-//name:"Kanap Eurydomé"
+const orderButton = document.querySelector("#order")
+orderButton.addEventListener("click", (e) => submitForm(e))
 
 function retrieveItemsFromCache() {
     const numberOfItems = localStorage.length
@@ -169,3 +164,50 @@ function makeImageDiv(item) {
     return div
 }
 
+function submitForm(e) {
+    e.preventDefault()
+    if (cart.length === 0) alert("Please select items to buy")
+    const form = document.querySelector(".cart__order__form")
+    const body = makeRequestBody()
+    fetch("http://localhost:3000/api/productS/order", {
+        method: "POST",
+        body: JSON.stringify(body),
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+        .then((res) => res.json())
+        .then((data) => console.log(data))
+}
+
+function makeRequestBody() {
+    const form = document.querySelector(".cart__order__form")
+    const firstName = form.elements.firstName.value
+    const lastName = form.elements.lastName.value 
+    const address = form.elements.address.value 
+    const city = form.elements.city.value 
+    const email = form.elements.email.value 
+    const body = {
+        contact: {
+            firstName: firstName,
+            lastName: lastName,
+            address: address,
+            city: city,
+            email: email
+        },
+        products: getIdsFromCache() 
+    }
+    console.log(body)
+    return body
+}
+
+function getIdsFromCache() {
+    const numberOfProducts = localStorage.length
+    const ids = []
+    for (let i = 0; i < numberOfProducts; i++) {
+        const key = localStorage.key(i)
+        const id = key.split("-")[0]
+        ids.push(id)
+    }
+    return ids
+}
